@@ -1,72 +1,74 @@
+---
 avast:
-  name: Avast Antivirus %u
-  en: 1
-  req: 1
+  flags:
+    - en
+    - req
+  name: Avast Antivirus $u
   regex: m/^avast[\w]+setup.exe$/i
-  postrun: &avast; #reg
+  postrun: avast; #reg
   version: 0 #0 => OLE only, $1 => first ()
-  install: %1 /nodesktopicon /noreboot /nosounds /norun /overwrite /progress /silent /verysilent
-  uninstall: %1 /uninstall /verysilent /noreboot
-  update: %1 /update /verysilent /noreboot
-
-
-chrome:     #http://www.google.com/intl/en/chrome/business/browser
-  name: Google Chrome %u
-  en: 1
-  req: 0
-  prerun: &chrome;
+  install: \%1 /nodesktopicon /noreboot /nosounds /norun /overwrite /progress /silent /verysilent
+  uninstall: \%1 /uninstall /verysilent /noreboot
+  update: \%1 /update /verysilent /noreboot
+chrome:
+  flags: 
+    - en
+  name: Google Chrome $u
+  #req: 0
+  prerun: chrome;
   regex: m/^Chrome[\w]+Enterprise.msi$/i
   version: 0 #0 => OLE only, $1 => first ()
-  install: /qn /i %1
-  uninstall: 
-  update:
-
+  install: /qn /i \%1
+  #uninstall: 
+  #update:
 jre86:
-  name: Oracle JRE %u x86
-  en: 1
-  req: 1
+  flags:
+    - en
+    - req
+  name: Oracle JRE $u x86
   regex: m/^jre\-([0-9]u[0-9]{1-3})\-windows-i586.exe$/i
   version: 1 #0 => OLE only, $1 => first ()
-  install: &jre("x86");
- # install: /s /L %TEMP%\jre-x86.txt /v\"ADDLOCAL=ALL IEXPLORER=1 MOZILLA=1 REBOOT=reallysuppress\" /qn
-  uninstall: 
-  update:
-
+  install: jre("x86");
+  #install: /s /L \%TEMP\%\jre-x86.txt /v\"ADDLOCAL=ALL IEXPLORER=1 MOZILLA=1 REBOOT=reallysuppress\" /qn
+  #uninstall: 
+  #update:
 jre64:
-  name: Oracle JRE %u x64
-  en: 1
-  req: 1
+  flags:
+    - en
+    - req
+  name: Oracle JRE $u x64
   regex: m/^jre\-([0-9]u[0-9]{1-3})\-windows-x64.exe$/i
   version: 1 #0 => OLE only, $1 => first ()
-  install: &jre("x64");
-  uninstall: 
-  update:
-
+  install: jre("x64");
+  #uninstall: 
+  #update:
 firefox:
-  name: Mozilla Firefox %u
-  en: 1
-  req: 1
-  postrun: &firefox("x64"); #extension
+  flags:
+    - en
+    - req
+  name: Mozilla Firefox $u
+  postrun: firefox("x64"); #extension
   regex: m/^Firefox\sSetup\s([0-9]{2}\.[0-9])$/i
   version: 1 #0 => OLE only, $1 => first ()
-  install: 
-  uninstall: 
-  update:
-
+  #install: 
+  #uninstall: 
+  #update:
 flash: 
-  name: Adobe Flash %u
-  en: 1
-  req: 1
+  flags:
+    - en
+    - req
+  name: Adobe Flash $u
   regex: m/^install_flashplayer([0-9]+)x[0-9]{2}_mssd_aaa_aih\.exe$/i
   version: 0
-  install:
-  uninstall:
-  update:
-
+  #install:
+  #uninstall:
+  #update:
 rkill:
+  flags:
+    - av
   file: rkill.exe
-  av: 1
-
 HijackThis:
+  flags:
+    - av
   file: HijackWrapper.exe
-  av: 1
+#Must have newline

@@ -7,5 +7,6 @@ use warnings;
 use lib qw(.);
 use au::log;
 use au::uninstall;
+use au::globals;
 
-isInstalled( "hi" );
+#isInstalled( "hi" );
