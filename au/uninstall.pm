@@ -18,42 +18,79 @@ $VERSION     = 0.1;
 
 ##########
 # isInstalled
-# IN: qr/regex/ to search for
+# isInstalled( ['KeyName' => qr regextotestagainst]+  );
+#   Can take any number of arguments in either the hash or the array.
+#   Common possible keys w/ example text
+#   DisplayName => "Mozilla Firefox 21.0 (x86 en-US)"
+#   DisplayVersion => "21.0"
+#   Publisher => "Mozilla"
+#   UninstallString => "C:\Program Files (x86)\Mozilla Firefox\uninstall\helper.exe"
+# Returns: The uninstall key for what's found. If not found, 0.
 ##########
 sub isInstalled
 {
-  my ($regex) = $_[0];
+  if( not @_ )
+  {
+    lerror( "Missing arguments in isInstalled" );
+    return 0;
+  }
+  
+  my %arg = @_;
+
   my @uninKeys = ( 'HKEY_LOCAL_MACHINE/SOFTWARE/Microsoft/Windows/CurrentVersion/Uninstall/',
                    'HKEY_LOCAL_MACHINE/SOFTWARE/Wow6432Node/Microsoft/Windows/CurrentVersion/Uninstall/' );
- 
+  
+  # Loop through both locations
   foreach my $ukey (@uninKeys)
-  {      
+  {
+    # Cycle through the keys in one spot
     foreach my $hkey (keys %{$Registry->{$ukey}})
     {
       my $key = $Registry->{$ukey}->{$hkey};
+      my $return;
+
+      # Check this one against our arguments
+      foreach my $argk (keys %arg)
+      {
+        last unless defined $key->{$argk};
+        
+        if( !( $key->{$argk} =~ m/$arg{$argk}/i ) )
+        {
+          $return = 0;
+          last;
+        }
+        else
+        {
+          if( defined $return )
+          {
+            $return &= 1;
+          }
+          else
+          {
+            $return = 1;
+          }
+        }
+      }
+      # Done, what did we find
+      next unless $return;
       
-      printl("Uninstalling " . $key->{'DisplayName'} . ": ");
-     # if($key->{'UninstallString'} =~ /^C\:\\.*\.[A-Za-z0-9]+$/
-      #   && !(-e $key->{'UninstallString'}))
-     # {
-        #output("broken install\n");
-        #delete $Registry->{$app_key};
-        next;
-     # }
-
-      #$my $result = run_command("\"" . $uninst->{'UninstallString'} . "\" -ms");
-      #sleep(5);
-
-      if(1)#$result)
+      # We found something, gather up and leave
+      my %nreturn;
+      
+      # Remove leading / before keys
+      foreach my $tkey (keys %$key)
       {
-        #output("done\n");
+        my $nkey = $tkey;
+        $nkey  =~ s/^\///;
+        
+        $nreturn{$nkey} = $key->{$tkey};
       }
-      else
-      {
-        #output("failed! Manually removing!\n");
-      }
+      
+      return %nreturn;
     }
   }
+  
+  return 0;
 }
 
 return 1;

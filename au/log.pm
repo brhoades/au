@@ -47,4 +47,13 @@ sub printl
   print $message;
 }
 
+#To be done
+sub lerror
+{ 
+  print $_[0]."\n";
+  print __FILE__, " Line: ", __LINE__, "\n";
+  
+  return 1;
+}
+
 return 1;
