@@ -39,9 +39,9 @@ sub readUpdates
   $yr = YAML::Tiny->read( $cfile )
     or die( YAML::Tiny->errstr() );
 
-  print Dumper $yr->[0];
+  return $yr->[0];
 }
 
-readUpdates( );
+%updates = readUpdates( );
 
 return 1;
