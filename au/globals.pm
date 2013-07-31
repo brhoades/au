@@ -11,7 +11,7 @@ use Cwd;
 use au::log;
 use Data::Dumper;
 use YAML::Tiny;
-use vars qw($VERSION @ISA @EXPORT @EXPORT_OK %EXPORT_TAGS);
+use vars qw($VERSION @ISA @EXPORT @EXPORT_OK %EXPORT_TAGS %updates);
 
 $VERSION     = 0.1;
 @ISA         = qw(Exporter);
@@ -39,7 +39,7 @@ sub readUpdates
   $yr = YAML::Tiny->read( $cfile )
     or die( YAML::Tiny->errstr() );
 
-  return $yr->[0];
+  return %{$yr->[0]};
 }
 
 %updates = readUpdates( );
