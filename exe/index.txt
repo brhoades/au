@@ -1,11 +1,12 @@
 ---
+#rm reader, install sumatara
 avast:
   flags:
     - en
     - req
   name: Avast Antivirus $u
   regex: m/^avast[\w]+setup.exe$/i
-  postrun: avast; #reg
+  post: postavast(); #reg
   version: 0 #0 => OLE only, $1 => first ()
   install: \%1 /nodesktopicon /noreboot /nosounds /norun /overwrite /progress /silent /verysilent
   uninstall: \%1 /uninstall /verysilent /noreboot
@@ -15,7 +16,7 @@ chrome:
     - en
   name: Google Chrome $u
   #req: 0
-  prerun: chrome;
+  pre: prechrome();
   regex: m/^Chrome[\w]+Enterprise.msi$/i
   version: 0 #0 => OLE only, $1 => first ()
   install: /qn /i \%1
@@ -47,7 +48,7 @@ firefox:
     - en
     - req
   name: Mozilla Firefox $u
-  postrun: firefox("x64"); #extension
+  post: firefox("x64"); #extension
   regex: m/^Firefox\sSetup\s([0-9]{2}\.[0-9])$/i
   version: 1 #0 => OLE only, $1 => first ()
   #install: 
@@ -60,7 +61,7 @@ flash:
   name: Adobe Flash $u
   regex: m/^install_flashplayer([0-9]+)x[0-9]{2}_mssd_aaa_aih\.exe$/i
   version: 0
-  #install:
+  post: postflash();
   #uninstall:
   #update:
 rkill:
