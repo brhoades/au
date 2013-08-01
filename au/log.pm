@@ -7,8 +7,13 @@ use strict;
 use Exporter;
 use vars qw($VERSION @ISA @EXPORT @EXPORT_OK %EXPORT_TAGS);
 use feature 'state';
- 
-#our @log;
+
+use Win32;
+use Win32::IpConfig;
+use Win32::DriveInfo;
+use Win32::SystemInfo;
+use Log::Log4perl;
+
 state @log;
 
 $VERSION     = 0.1;
@@ -54,6 +59,11 @@ sub lerror
   print __FILE__, " Line: ", __LINE__, "\n";
   
   return 1;
+}
+
+sub machineInfo
+{
+  
 }
 
 return 1;

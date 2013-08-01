@@ -9,7 +9,6 @@ use warnings;
 use Exporter;
 use Cwd;
 use au::log;
-use Data::Dumper;
 use YAML::Tiny;
 use vars qw($VERSION @ISA @EXPORT @EXPORT_OK %EXPORT_TAGS %updates);
 
