@@ -73,7 +73,10 @@ sub updateFile
   
   foreach my $file (@files)
   {
-    if( $file =~ $update{'regex'} )
+    $file =~ /[\w_\-\\:]*\\([\w_\-]+.\w+)/i;
+    my $fname = $1;
+    #print $fname." and ".$update{'regex'}."\n";
+    if( $fname =~ $update{'regex'} )
     {
       return $file;
     }
