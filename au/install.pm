@@ -120,7 +120,7 @@ sub uninstall
   my %upkey = $args{'UpdateKey'};
   my %unkey = $args{'UninstallKey'};
   
-  msg( "Uninstalling ".$unkey{'DisplayName'}.":\n" )
+  msg( "Uninstalling ".$unkey{'DisplayName'}.":\n" );
   
   # At this point we assume I didn't screw anything up
   # FIXME: I will
@@ -131,24 +131,24 @@ sub uninstall
   
   if( $upkey{'uninstall'} =~ m/\$2/ )
   {
-    $un = $upkey{'uninstall'};
+    my $un = $upkey{'uninstall'};
     $un =~ s/\$2/$unkey{'UninstallString'}/;
     my $ret = 1;
     
     if( defined $upkey{'preun'} )
     {
       msg( "\tPre: " );
-      $ret =& eval( $upkey{'preun'} );
+      $ret &= eval( $upkey{'preun'} );
       msg( "done\n" );
     }
     
-    $ret =& system( $un );
+    $ret &= system( $un );
     
     if( defined $upkey{'postun'} )
     {
       msg( "\tPost: " );
-      $ret =& eval( $upkey{'postun'} );
-      msg( "\tdone\n";
+      $ret &= eval( $upkey{'postun'} );
+      msg( "\tdone\n" );
     }
     
     if( $ret )
