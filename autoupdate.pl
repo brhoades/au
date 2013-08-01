@@ -6,3 +6,9 @@ use warnings;
 
 use lib qw(.);
 use au::globals;
+
+sub main
+{
+  
+  
+}

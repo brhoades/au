@@ -30,7 +30,7 @@ sub isInstalled
 {
   if( not @_ )
   {
-    lerror( "Missing arguments in isInstalled" );
+    carp( "Missing arguments: @_" );
     return 0;
   }
   
@@ -90,4 +90,95 @@ sub isInstalled
   }
   
   return 0;
+}
+
+##########
+# unInstall
+# unInstall( 'UpdateKey' => %updatekey,
+#            'UninstallKey' => %uninstall ) this uses the uninstall 
+#                                           key from isInstalled
+#   Uninstalls a program and calls any pre/posts
+#   Does not check for installation
+# Returns: 0 on error, 1 on success
+##########
+
+sub uninstall
+{
+  my %args = @_;
+  
+  if( not defined $args{'UpdateKey'} )
+  {
+    carp( "Missing argument 'UpdateKey', got: @_" );
+    return;
+  }
+  elsif( not defined $args{'UninstallKey'} )
+  {
+    carp( "Missing argument 'UninstallKey', got: @_" );
+    return;
+  }
+  
+  my %upkey = $args{'UpdateKey'};
+  my %unkey = $args{'UninstallKey'};
+  
+  msg( "Uninstalling ".$unkey{'DisplayName'}.":\n" )
+  
+  # At this point we assume I didn't screw anything up
+  # FIXME: I will
+  if( not defined $upkey{'uninstall'} )
+  {
+    carp( "Called uninstall with no uninstall defined: @_" );
+  }
+  
+  if( $upkey{'uninstall'} =~ m/\$2/ )
+  {
+    $un = $upkey{'uninstall'};
+    $un =~ s/\$2/$unkey{'UninstallString'}/;
+    my $ret = 1;
+    
+    if( defined $upkey{'preun'} )
+    {
+      msg( "\tPre: " );
+      $ret =& eval( $upkey{'preun'} );
+      msg( "done\n" );
+    }
+    
+    $ret =& system( $un );
+    
+    if( defined $upkey{'postun'} )
+    {
+      msg( "\tPost: " );
+      $ret =& eval( $upkey{'postun'} );
+      msg( "\tdone\n";
+    }
+    
+    if( $ret )
+    {
+      msg( "\tDone!\n" );
+    }
+    else
+    {
+      croak( "\tFailed!\n" );
+      return $ret;
+    }
+  }
+  elsif( $upkey{'uninstall'} =~ m/;$/ )
+  {
+    #No pres or posts since this is a function itself
+    eval( $upkey{'uninstall'} );
+  }
+  
+  return 1;
+}
+
+##########
+# Install
+# Install( 'UpdateKey' => %updatekey )
+#   Installs a program and calls any pre/posts
+#   Does not check for prior installation
+# Returns: 0 on error, 1 on success
+##########
+
+sub install
+{
+  
 }

@@ -9,6 +9,8 @@ use warnings;
 use Exporter;
 use Cwd;
 use YAML::Tiny;
+use Data::Dumper;
+use Log::Message::Simple qw[msg error debug carp croak cluck confess];
 use vars qw($VERSION @ISA @EXPORT @EXPORT_OK %EXPORT_TAGS %updates);
 
 $VERSION     = 0.1;
@@ -28,6 +30,7 @@ sub wd
 ##########
 # readUpdates
 # Reads updates in from our exe folder and categorizes them via regex
+# Returns: hash of 
 ##########
 sub readUpdates
 {
@@ -37,9 +40,13 @@ sub readUpdates
   $yr = YAML::Tiny->read( $cfile )
     or die( YAML::Tiny->errstr() );
 
-  return %{$yr->[0]};
+  my %updates =  %{$yr->[0]};
+  
+  return %updates;
 }
 
 %updates = readUpdates( );
+
+
 
 return 1;
