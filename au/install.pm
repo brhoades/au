@@ -13,7 +13,7 @@ use vars qw($VERSION @ISA @EXPORT @EXPORT_OK %EXPORT_TAGS);
 
 $VERSION     = 0.1;
 @ISA         = qw(Exporter);
-@EXPORT      = qw(isInstalled);
+@EXPORT      = qw(isInstalled unInstall);
 
 ##########
 # isInstalled
@@ -24,7 +24,7 @@ $VERSION     = 0.1;
 #   DisplayVersion => "21.0"
 #   Publisher => "Mozilla"
 #   UninstallString => "C:\Program Files (x86)\Mozilla Firefox\uninstall\helper.exe"
-# Returns: The uninstall key for what's found. If not found, 0.
+# Returns: All uninstallkeys matching the critera in a array of hashrefs. If not found, a blank array.
 ##########
 sub isInstalled
 {
@@ -35,6 +35,7 @@ sub isInstalled
   }
   
   my %arg = @_;
+  my @ret;
 
   my @uninKeys = ( 'HKEY_LOCAL_MACHINE/SOFTWARE/Microsoft/Windows/CurrentVersion/Uninstall/',
                    'HKEY_LOCAL_MACHINE/SOFTWARE/Wow6432Node/Microsoft/Windows/CurrentVersion/Uninstall/' );
@@ -73,7 +74,7 @@ sub isInstalled
       # Done, what did we find
       next unless $return;
       
-      # We found something, gather up and leave
+      # We found something, gather up everything
       my %nreturn;
       
       # Remove leading / before keys
@@ -85,11 +86,11 @@ sub isInstalled
         $nreturn{$nkey} = $key->{$tkey};
       }
       
-      return %nreturn;
+      push @ret, \%nreturn;
     }
   }
   
-  return 0;
+  return @ret;
 }
 
 ##########
@@ -102,7 +103,7 @@ sub isInstalled
 # Returns: 0 on error, 1 on success
 ##########
 
-sub uninstall
+sub unInstall
 {
   my %args = @_;
   
@@ -135,6 +136,7 @@ sub uninstall
     $un =~ s/\$2/$unkey{'UninstallString'}/;
     my $ret = 1;
     
+    #FIXME: Make a funciton for this
     if( defined $upkey{'preun'} )
     {
       msg( "\tPre: " );
@@ -160,6 +162,31 @@ sub uninstall
       croak( "\tFailed!\n" );
       return $ret;
     }
+  }
+  elsif( $upkey{'uninstall'} =~ m/\$1/ )
+  {
+    my $un = $upkey{'uninstall'};
+    my $upfile = updateFile( %upkey );
+    my $ret = 1;
+    
+    $un =~ s/\$1/$upfile/;
+    
+    #FIXME: Make a function for this
+    if( defined $upkey{'preun'} )
+    {
+      msg( "\tPre: " );
+      $ret &= eval( $upkey{'preun'} );
+      msg( "done\n" );
+    }
+    
+    $ret &= system( $un );
+    
+    if( defined $upkey{'postun'} )
+    {
+      msg( "\tPost: " );
+      $ret &= eval( $upkey{'postun'} );
+      msg( "\tdone\n" );
+    }    
   }
   elsif( $upkey{'uninstall'} =~ m/;$/ )
   {
