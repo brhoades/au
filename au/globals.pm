@@ -9,6 +9,9 @@ use warnings;
 use Exporter;
 use Cwd;
 use YAML::Tiny;
+use File::Basename;
+use Win32::OLE;
+use Win32::OLE::Const;
 use Log::Message::Simple qw[msg error debug carp croak cluck confess];
 use vars qw($VERSION @ISA @EXPORT @EXPORT_OK %EXPORT_TAGS %updates);
 
@@ -42,7 +45,8 @@ sub readUpdates
 {
   my $yr = YAML::Tiny->new;
   my $cfile = wd()."\\exe\\index.txt";
-  
+  my $propread = Win32::OLE->new('DSOleFile.PropertyReader', '') 
+        || croak "Unable to load property reader";
   $yr = YAML::Tiny->read( $cfile )
     or die( YAML::Tiny->errstr() );
 
@@ -54,7 +58,25 @@ sub readUpdates
     next if 'av' ~~ $update{'flags'};
     
     my $file = updateFile(%update);
+    $updates{$upkey}{'file'} = $file;
     
+    if($update{'version'} == 1)
+    {
+      basename($file) =~ /$update{'regex'}/;
+      my $version = $1;
+      if( not defined $version )
+      {
+        carp "Please update regex for ".$update{'name'}." or switch its version type to 0\n";
+      }
+      $updates{$upkey}{'version'} = $1;
+    }
+    else
+    {
+      my $folep = $propread->GetDocumentProperties($file) 
+        || croak "\"Unable to process properties of update: ".$update{'name'}."\"";
+
+      print $folep->version;
+    }
   }
   
   return %updates;
@@ -73,17 +95,16 @@ sub updateFile
   
   foreach my $file (@files)
   {
-    $file =~ /[\w_\-\\:]*\\([\w_\-]+.\w+)/i;
+    $file =~ /[A-Z]\:[\w_\s\-\\]*\\([\w_\-\s]+.\w+)/i;
     my $fname = $1;
-    #print $fname." and ".$update{'regex'}."\n";
-    if( $fname =~ $update{'regex'} )
+    #print $fname." and ".$update{'regex'}."\n\n";
+    if( $fname =~ m/$update{'regex'}/i )
     {
       return $file;
     }
   }
   
-  #FIXEME: Should insert version
-  $update{'name'} =~ s/\$[A-Za-z]//g;
+  $update{'name'} =~ s/\$\s[A-Za-z]//g;
   
   carp( "Unknown update: ".$update{'name'}."\n" );
   return undef;
@@ -109,6 +130,17 @@ sub human
   $name =~ s/[ ]+$//;
   
   return $name;
+}
+
+##########
+# cInfo( )
+#   Prints out information about this computer.
+# Returns: Nothing
+##########
+sub cInfo
+{
+  
+  
 }
 
 return 1;

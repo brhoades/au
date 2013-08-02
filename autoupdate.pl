@@ -35,10 +35,17 @@ sub main
     next unless $en;
     
     #Install list
-    my $strname = $up{'name'};
-    $strname =~ s/\$[A-Za-z]//g; #remove variable subs
-    $strname =~ s/\ +$//; #trim whitespace
-    
+    my $strname;
+    if( not $up{'unregex'} )
+    {
+      $strname = $up{'name'};
+      $strname =~ s/\$[A-Za-z]//g; #remove variable subs
+      $strname =~ s/\ +$//; #trim whitespace
+    }
+    else
+    {
+      $strname = $up{'unregex'};
+    }
     @inst = isInstalled( 'DisplayName' => $strname );
     print "  Installed: ".( @inst > 0 ? "true" : "false" )."\n";
     
@@ -90,7 +97,8 @@ sub updateAvail
   my @inst = @{$_[0]};
   my %up = %{$_[1]};
   
-  print "Latest Available: ";
+  print "   Latest Available: ";
+  #Use info gathered earlier
 }
 
 main();
