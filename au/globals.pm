@@ -7,11 +7,11 @@ use strict;
 use warnings;
 
 use Exporter;
-use Cwd;
 use YAML::Tiny;
 use File::Basename;
-use Win32::OLE;
-use Win32::OLE::Const;
+use Win32::Exe;
+use Win32::Exe::Manifest;
+use Win32::MSI::HighLevel;
 use Log::Message::Simple qw[msg error debug carp croak cluck confess];
 use vars qw($VERSION @ISA @EXPORT @EXPORT_OK %EXPORT_TAGS %updates);
 
@@ -26,12 +26,9 @@ $VERSION     = 0.1;
 ##########
 sub wd
 {
-  my $cwd = cwd;
-  
-  $cwd =~ s/\//\\/g;
-  $cwd .= "\\";
-  
-  return $cwd;
+  $0 =~ /([\w\\\:\-\.]+\\)[\w\.\-]+\.[\w]+/;
+
+  return $1;
 }
 
 %updates = readUpdates( );
@@ -44,9 +41,7 @@ sub wd
 sub readUpdates
 {
   my $yr = YAML::Tiny->new;
-  my $cfile = wd()."\\exe\\index.txt";
-  my $propread = Win32::OLE->new('DSOleFile.PropertyReader', '') 
-        || croak "Unable to load property reader";
+  my $cfile = wd()."exe\\index.txt";
   $yr = YAML::Tiny->read( $cfile )
     or die( YAML::Tiny->errstr() );
 
@@ -72,10 +67,25 @@ sub readUpdates
     }
     else
     {
-      my $folep = $propread->GetDocumentProperties($file) 
-        || croak "\"Unable to process properties of update: ".$update{'name'}."\"";
-
-      print $folep->version;
+      if($file =~ m/\.exe$/i)
+      {
+        my $exe = Win32::Exe->new($file);
+        my $mani = $exe->get_manifest;
+        print $mani->output."\n";
+       #print $exe->get_version_info."\n\n";
+        
+        #print $details{'Version'};
+      }
+      elsif( $file =~ m/\.msi$/i )
+      {
+        my $msi = Win32::MSI::HighLevel->new("-file" => $file, "-mode" => Win32::MSI::HighLevel::Common::kMSIDBOPEN_READONLY);      
+        
+        print $msi->getProduct()."\n\n";
+      }
+      else
+      {
+        carp "Unknown file type for $file.\n"; 
+      }
     }
   }
   

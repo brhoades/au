@@ -4,10 +4,17 @@
 use strict;
 use warnings;
 
-use lib qw(.);
+use Data::Dumper;
+use File::Basename;
+
+BEGIN
+{
+  $0 =~ /([\w\\\:\-\.]+\\)[\w\.\-]+\.[\w]+/;
+  
+  push @INC, $1;
+}
 use au::globals;
 use au::install;
-use Data::Dumper;
 
 sub main
 {
