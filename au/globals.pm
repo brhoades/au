@@ -9,15 +9,12 @@ use warnings;
 use Exporter;
 use YAML::Tiny;
 use File::Basename;
-use Win32::Exe;
-use Win32::Exe::Manifest;
-use Win32::MSI::HighLevel;
 use Log::Message::Simple qw[msg error debug carp croak cluck confess];
 use vars qw($VERSION @ISA @EXPORT @EXPORT_OK %EXPORT_TAGS %updates);
 
 $VERSION     = 0.1;
 @ISA         = qw(Exporter);
-@EXPORT      = qw(%updates updateFile wd human);
+@EXPORT      = qw(%updates updateFile wd human cVer);
 
 ##########
 # wd( void )
@@ -55,38 +52,13 @@ sub readUpdates
     my $file = updateFile(%update);
     $updates{$upkey}{'file'} = $file;
     
-    if($update{'version'} == 1)
+    basename($file) =~ /$update{'regex'}/;
+    my $version = $1;
+    if( not defined $version )
     {
-      basename($file) =~ /$update{'regex'}/;
-      my $version = $1;
-      if( not defined $version )
-      {
-        carp "Please update regex for ".$update{'name'}." or switch its version type to 0\n";
-      }
-      $updates{$upkey}{'version'} = $1;
+      carp "Please update regex for ".$update{'name'}." or switch its version type to 0\n";
     }
-    else
-    {
-      if($file =~ m/\.exe$/i)
-      {
-        my $exe = Win32::Exe->new($file);
-        my $mani = $exe->get_manifest;
-        print $mani->output."\n";
-       #print $exe->get_version_info."\n\n";
-        
-        #print $details{'Version'};
-      }
-      elsif( $file =~ m/\.msi$/i )
-      {
-        my $msi = Win32::MSI::HighLevel->new("-file" => $file, "-mode" => Win32::MSI::HighLevel::Common::kMSIDBOPEN_READONLY);      
-        
-        print $msi->getProduct()."\n\n";
-      }
-      else
-      {
-        carp "Unknown file type for $file.\n"; 
-      }
-    }
+    $updates{$upkey}{'version'} = $1;
   }
   
   return %updates;
@@ -105,9 +77,9 @@ sub updateFile
   
   foreach my $file (@files)
   {
-    $file =~ /[A-Z]\:[\w_\s\-\\]*\\([\w_\-\s]+.\w+)/i;
+    $file =~ /[A-Z]\:[\w_\s\-\\]*\\([\w_\-\s\.]+.\w+)/i;
     my $fname = $1;
-    #print $fname." and ".$update{'regex'}."\n\n";
+    
     if( $fname =~ m/$update{'regex'}/i )
     {
       return $file;
@@ -140,6 +112,36 @@ sub human
   $name =~ s/[ ]+$//;
   
   return $name;
+}
+
+##########
+# cVer
+#   Compares two versions. Essentially drops periods and u to make a large number then compares.
+#   If left side > right, returns true, otherwise false.
+# Returns: 1 or 0
+##########
+sub cVer
+{
+  my $lver = $_[0];
+  my $rver = $_[1];
+  
+  $lver =~ s/(\.)//g;
+  $rver =~ s/(\.)//g;  
+  
+  #JRE catches
+  if( $lver =~ m/[0-9]u[0-9]{1,2}/i )
+  {
+    $lver =~ s/u//g;
+    $lver .= 0;
+  }
+
+  if( $rver =~ m/[0-9]u[0-9]{1,2}/i )
+  {
+    $rver =~ s/u//g;
+    $rver .= 0;
+  }
+  
+  return( $lver > $rver );
 }
 
 ##########

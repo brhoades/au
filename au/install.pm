@@ -1,5 +1,4 @@
-
-+#Install module
+#Install module
 #
 
 package au::install;

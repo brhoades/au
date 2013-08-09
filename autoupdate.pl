@@ -62,8 +62,17 @@ sub main
       versionList( @inst );
       
       #Update available
-      my $update = updateAvail( \@inst, \%up );
+      if( updateAvail( \@inst, \%up ) )
+      {
+        print "   Action: Updating\n";
+      }
+      else
+      {
+        print "   Action: None\n";
+      }
     }
+    
+    print "\n";
   }
 }
 
@@ -103,9 +112,27 @@ sub updateAvail
 {
   my @inst = @{$_[0]};
   my %up = %{$_[1]};
+  my $ret = 0;
+  my %vers;
   
   print "   Latest Available: ";
-  #Use info gathered earlier
+  my $tempup = $up{'version'};
+  $tempup =~ s/\.([0]+\.?)//; #Remove extraneous zeros
+  print $tempup."\n";
+
+  foreach my $keyr (@inst)
+  {
+    my %key = %$keyr;
+        
+    $vers{$key{'DisplayVersion'}} = 1;
+  }
+   
+  foreach my $version (keys %vers)
+  {
+    $ret = 1 if( cVer( $up{'version'}, $version ) );
+  }
+  
+  return $ret;
 }
 
 main();
