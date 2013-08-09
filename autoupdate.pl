@@ -66,9 +66,13 @@ sub main
       {
         print "   Action: Updating\n";
       }
+      elsif( $up{'flags'} ~~ 'req' )
+      {
+        print "   Action: Installing (required)\n";
+      }
       else
       {
-        print "   Action: None\n";
+        print "  Action: None\n";
       }
     }
     

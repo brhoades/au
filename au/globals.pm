@@ -5,6 +5,7 @@ package au::globals;
 
 use strict;
 use warnings;
+use version;
 
 use Exporter;
 use YAML::Tiny;
@@ -125,23 +126,21 @@ sub cVer
   my $lver = $_[0];
   my $rver = $_[1];
   
-  $lver =~ s/(\.)//g;
-  $rver =~ s/(\.)//g;  
-  
   #JRE catches
+  # The DisplayVersion tends to have an extra zero padded on
   if( $lver =~ m/[0-9]u[0-9]{1,2}/i )
   {
-    $lver =~ s/u//g;
+    $lver =~ s/u/\./g;
     $lver .= 0;
   }
 
   if( $rver =~ m/[0-9]u[0-9]{1,2}/i )
   {
-    $rver =~ s/u//g;
+    $rver =~ s/u/\./g;
     $rver .= 0;
   }
   
-  return( $lver > $rver );
+  return( version->parse($lver) > version->parse($rver) );
 }
 
 ##########
