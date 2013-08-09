@@ -15,7 +15,7 @@ use vars qw($VERSION @ISA @EXPORT @EXPORT_OK %EXPORT_TAGS %updates);
 
 $VERSION     = 0.1;
 @ISA         = qw(Exporter);
-@EXPORT      = qw(%updates updateFile wd human cVer);
+@EXPORT      = qw(%updates updateFile wd human cVer header pr);
 
 ##########
 # wd( void )
@@ -152,6 +152,45 @@ sub cInfo
 {
   
   
+}
+
+##########
+# header( $text )
+#   Prints out a nice header
+# Returns: Nothing
+##########
+sub header
+{
+  pr("#"x79);
+  pr("\n");
+  foreach my $text (@_)
+  {
+    print " "x((79-length($text))/2);
+    pr("$text\n");
+  }
+  pr("#"x79);
+  pr("\n");
+}
+
+sub pr
+{
+  my $verb = $_[1];
+  
+  if( not defined $verb )
+  {
+    $verb = 1;
+  }
+  
+  if( $verb <= 1 )
+  {
+    print $_[0];
+  }
+  
+  open( my $fh, ">>", wd()."\\log.txt" );
+  
+  print $fh $_[0];
+  
+  close $fh;
 }
 
 return 1;

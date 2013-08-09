@@ -18,13 +18,14 @@ use au::install;
 
 sub main
 {
+  my (@update, @install);
   foreach my $upref (keys %updates)
   {
     my %up = %{$updates{$upref}};
-    my @inst;
+    my (@inst);
     
     #next unless checkSyntax( %up );
-        
+
     if( !$up{'flags'} )
     {
       croak( "Need flags: ".human( $up{'name'} )."\n" );
@@ -32,12 +33,13 @@ sub main
     }
     next if( 'av' ~~ $up{'flags'} );
     
-    print human( $up{'name'} ).":\n";
+    pr(human( $up{'name'} ).": ");
+    pr("\n", 2);
 
     my $en = 'en' ~~ $up{'flags'};
     
     #Update status
-    print "  Status: ".( $en ? "enabled" : "disabled" )."\n";
+    pr("  Status: ".( $en ? "enabled" : "disabled" )."\n", 2);
     
     next unless $en;
     
@@ -54,7 +56,7 @@ sub main
       $strname = $up{'unregex'};
     }
     @inst = isInstalled( 'DisplayName' => $strname );
-    print "  Installed: ".( @inst > 0 ? "true" : "false" )."\n";
+    pr("  Installed: ".( @inst > 0 ? "true" : "false" )."\n",2);
     
     if( @inst && @inst > 0 )
     {
@@ -65,19 +67,34 @@ sub main
     #Update available
     if( updateAvail( \@inst, \%up ) )
     {
-      print "  Action: Updating\n";
+      pr("  Action: ",2 );
+      pr("Updating");
+      push @update, [$upref, \@inst];
     }
     elsif( 'req' ~~ $up{'flags'} && @inst == 0 )
     {
-      print "  Action: Installing (required)\n";
+      pr("  Action: ", 2);
+      pr("Installing (required)");
+      push @install, $upref;
+    }
+    elsif( @inst > 1 )
+    {
+      pr("  Action: ", 2);
+      pr("Cleaning (multiple versions)");
+      push @update, [$upref, \@inst];
     }
     else
     {
-      print "  Action: None\n";
+      pr("  Action: None, ", 2);
+      pr("Installed/up to date");
     }
   
-    print "\n";
+    pr("\n");
   }
+
+  pr("\n\n");
+  processInstalls( @install );
+  processUpdates( @update );
 }
 
 sub versionList
@@ -86,13 +103,13 @@ sub versionList
   my @inst = @_;
   my $num = @inst;
   my $first = 1;
-  print "   Version".($num == 1 ? "" : "s").": ";
+  pr("   Version".($num == 1 ? "" : "s").": ", 2);
   
   foreach my $keyr (@inst)
   {
     my %key = %$keyr;
     
-    $key{'DisplayVersion'} =~ s/\.([0]+\.?)$//; #Remove extraneous zeros
+    $key{'DisplayVersion'} =~ s/\.([0]+[\.]?)$//; #Remove extraneous zeros
     
     $vers{$key{'DisplayVersion'}} = 1;
   }
@@ -101,15 +118,15 @@ sub versionList
   {
     if( $first )
     {
-      print $version;
+      pr($version, 2);
     }
     else
     {
-      print ", $version";
+      pr(", $version", 2);
     }
   }
   
-  print "\n";
+  pr( "\n", 2 );
 }
 
 sub updateAvail
@@ -119,15 +136,15 @@ sub updateAvail
   my $ret = 0;
   my %vers;
   
-  print "   Latest Available: ";
+  pr("   Latest Available: ", 2);
   my $tempup = $up{'version'};
-  $tempup =~ s/\.([0]+\.?)//; #Remove extraneous zeros
-  print $tempup."\n";
+  $tempup =~ s/\.([0]+\.?)$//; #Remove extraneous zeros
+  pr( $tempup."\n", 2);
 
   foreach my $keyr (@inst)
   {
     my %key = %$keyr;
-        
+
     $vers{$key{'DisplayVersion'}} = 1;
   }
    
@@ -138,5 +155,35 @@ sub updateAvail
   
   return $ret;
 }
+
+sub processUpdates
+{
+  header( "Processing Updates" );
+  pr("\n");
+  
+  foreach my $packref (@_)
+  {
+    my @packed = @$packref;\
+    #unpack
+    my %up = %{$packed[0]};
+    my @inst = @{$packed[1]};
+    
+    foreach $install (@inst)
+    {
+      unInstall( 'UpdateKey' => %up,
+                    'UninstallKey' => %$install ); 
+    }
+  }
+}
+
+sub processInstalls
+{
+  header( "Processing Installs" );
+  pr("\n");
+}
+
+header( "Multiprogram Autoupdate", "by Billy Rhoades" );
+pr("\n\n");
+sleep(3);
 
 main();

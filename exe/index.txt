@@ -60,6 +60,8 @@ flash:
   name: Adobe Flash Player
   unregex: ^Adobe\sFlash\sPlayer\s[0-9]+\sPlugin$
   regex: ^install_flash_player_([0-9\.]*)\.exe$
+  install: $1 -install
+  uninstall: $1 -uninstall
   post: postflash();
 flashie: 
   flags:
@@ -69,7 +71,8 @@ flashie:
   unregex: ^Adobe\sFlash\sPlayer\s[0-9]+\sActiveX$
   regex: ^install_flash_player_ax_([0-9\.]*)\.exe$
   post: postflash();
-  #uninstall:
+  install: $1 -install
+  uninstall: $1 -uninstall
   #update:
 rkill:
   flags:
