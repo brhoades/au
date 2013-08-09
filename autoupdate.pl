@@ -60,22 +60,22 @@ sub main
     {
       #Version list
       versionList( @inst );
-      
-      #Update available
-      if( updateAvail( \@inst, \%up ) )
-      {
-        print "   Action: Updating\n";
-      }
-      elsif( $up{'flags'} ~~ 'req' )
-      {
-        print "   Action: Installing (required)\n";
-      }
-      else
-      {
-        print "  Action: None\n";
-      }
     }
     
+    #Update available
+    if( updateAvail( \@inst, \%up ) )
+    {
+      print "  Action: Updating\n";
+    }
+    elsif( 'req' ~~ $up{'flags'} && @inst == 0 )
+    {
+      print "  Action: Installing (required)\n";
+    }
+    else
+    {
+      print "  Action: None\n";
+    }
+  
     print "\n";
   }
 }
@@ -92,7 +92,7 @@ sub versionList
   {
     my %key = %$keyr;
     
-    $key{'DisplayVersion'} =~ s/\.([0]+\.?)//; #Remove extraneous zeros
+    $key{'DisplayVersion'} =~ s/\.([0]+\.?)$//; #Remove extraneous zeros
     
     $vers{$key{'DisplayVersion'}} = 1;
   }

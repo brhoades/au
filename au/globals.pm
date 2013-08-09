@@ -130,13 +130,13 @@ sub cVer
   # The DisplayVersion tends to have an extra zero padded on
   if( $lver =~ m/[0-9]u[0-9]{1,2}/i )
   {
-    $lver =~ s/u/\./g;
+    $lver =~ s/u/\.0\./g;
     $lver .= 0;
   }
 
   if( $rver =~ m/[0-9]u[0-9]{1,2}/i )
   {
-    $rver =~ s/u/\./g;
+    $rver =~ s/u/\.0\./g;
     $rver .= 0;
   }
   
