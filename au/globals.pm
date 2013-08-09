@@ -89,7 +89,7 @@ sub updateFile
   
   $update{'name'} =~ s/\$\s[A-Za-z]//g;
   
-  carp( "Unknown update: ".$update{'name'}."\n" );
+  carp( "Update not found: ".$update{'name'}."\n" );
   return undef;
 }
 

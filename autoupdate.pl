@@ -6,6 +6,7 @@ use warnings;
 
 use Data::Dumper;
 use File::Basename;
+use Getopt::Long;
 
 BEGIN
 {
@@ -15,6 +16,9 @@ BEGIN
 }
 use au::globals;
 use au::install;
+
+my $dryrun;
+GetOptions("dryrun" => \$dryrun);
 
 sub main
 {
@@ -69,7 +73,7 @@ sub main
     {
       pr("  Action: ",2 );
       pr("Updating");
-      push @update, [$upref, \@inst];
+      push @update, [$updates{$upref}, \@inst];
     }
     elsif( 'req' ~~ $up{'flags'} && @inst == 0 )
     {
@@ -81,7 +85,7 @@ sub main
     {
       pr("  Action: ", 2);
       pr("Cleaning (multiple versions)");
-      push @update, [$upref, \@inst];
+      push @update, [$updates{$upref}, \@inst];
     }
     else
     {
@@ -163,13 +167,14 @@ sub processUpdates
   
   foreach my $packref (@_)
   {
-    my @packed = @$packref;\
+    my @packed = @$packref;
     #unpack
     my %up = %{$packed[0]};
     my @inst = @{$packed[1]};
     
-    foreach $install (@inst)
+    foreach my $install (@inst)
     {
+      next if $dryrun;
       unInstall( 'UpdateKey' => %up,
                     'UninstallKey' => %$install ); 
     }
