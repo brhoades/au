@@ -166,6 +166,7 @@ sub updateAvail
 
 sub processUpdates
 {
+  return 1 if( not @_ );
   header( "Processing Updates" );
   pr("\n");
   
@@ -189,6 +190,8 @@ sub processUpdates
 
 sub processInstalls
 {
+  return 1 if( not @_ );
+  
   header( "Processing Installs" );
   pr("\n");
   
@@ -208,3 +211,5 @@ pr("\n\n");
 sleep(3);
 
 main();
+
+pr("\nScript finished!\n");

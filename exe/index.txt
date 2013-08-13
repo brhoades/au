@@ -19,7 +19,7 @@ chrome:
   pre: prechrome();
   regex: ^GoogleChromeStandaloneEnterprise\_([0-9\.]*)\.msi$
   install: $1 /qn /i \$1
-  #uninstall: 
+  uninstall: $2
   #update:
 jre86:
   flags:

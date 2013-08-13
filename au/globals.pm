@@ -174,14 +174,12 @@ sub cnf
   
   return 1 if( $wd =~ m/C\:/i || $fork );
  
-  pr( "Copying and forking: " );
+  pr( "Copying and forking: \n" );
     
   system("XCOPY /s /y /i \"$wd*\" \"$ndir\"");
   $0 =~ /[\:\$\w\s\-\\\/]*\\([\w_\-\s\.]+\.\w+)$/;
   exec("\"$ndir\\$1\" -fork");
-  
-  pr( "done\n" );
-  
+ 
   return 0;
 }
 

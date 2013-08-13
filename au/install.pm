@@ -128,10 +128,34 @@ sub unInstall
   # FIXME: I will
   if( not defined $upkey{'uninstall'} )
   {
-    carp( "Called uninstall with no uninstall defined: @_" );
+    #FIXME: Make a funciton for this
+    if( defined $upkey{'preun'} )
+    {
+      pr( "\tPre: " );
+      $ret &= eval( $upkey{'preun'} );
+      pr( "done\n" );
+    }
+    
+    $ret &= system( $unkey{'UninstallString'} );
+    
+    if( defined $upkey{'postun'} )
+    {
+      pr( "\tPost: " );
+      $ret &= eval( $upkey{'postun'} );
+      pr( "\tdone\n" );
+    }
+    
+    if( $ret )
+    {
+      pr( "\tDone!\n" );
+    }
+    else
+    {
+      pr( "\tFailed!\n" );
+      return $ret;
+    }
   }
-  
-  if( $upkey{'uninstall'} =~ m/\$2/ )
+  elsif( $upkey{'uninstall'} =~ m/\$2/ )
   {
     my $un = $upkey{'uninstall'};
     $un =~ s/\$2/"$unkey{'UninstallString'}"/;
