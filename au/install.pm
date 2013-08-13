@@ -8,12 +8,13 @@ use warnings;
 
 use Exporter;
 use au::globals;
+use au::special;
 use Win32::TieRegistry( Delimiter => "/" );
 use vars qw($VERSION @ISA @EXPORT @EXPORT_OK %EXPORT_TAGS);
 
 $VERSION     = 0.1;
 @ISA         = qw(Exporter);
-@EXPORT      = qw(isInstalled unInstall);
+@EXPORT      = qw(isInstalled unInstall install);
 
 ##########
 # isInstalled
@@ -118,10 +119,10 @@ sub unInstall
     return;
   }
   
-  my %upkey = $args{'UpdateKey'};
-  my %unkey = $args{'UninstallKey'};
+  my %upkey = %{$args{'UpdateKey'}};
+  my %unkey = %{$args{'UninstallKey'}};
   
-  msg( "Uninstalling ".$unkey{'DisplayName'}.":\n" );
+  pr( "Uninstalling ".$unkey{'DisplayName'}.":\n" );
   
   # At this point we assume I didn't screw anything up
   # FIXME: I will
@@ -133,33 +134,33 @@ sub unInstall
   if( $upkey{'uninstall'} =~ m/\$2/ )
   {
     my $un = $upkey{'uninstall'};
-    $un =~ s/\$2/$unkey{'UninstallString'}/;
+    $un =~ s/\$2/"$unkey{'UninstallString'}"/;
     my $ret = 1;
     
     #FIXME: Make a funciton for this
     if( defined $upkey{'preun'} )
     {
-      msg( "\tPre: " );
+      pr( "\tPre: " );
       $ret &= eval( $upkey{'preun'} );
-      msg( "done\n" );
+      pr( "done\n" );
     }
     
     $ret &= system( $un );
     
     if( defined $upkey{'postun'} )
     {
-      msg( "\tPost: " );
+      pr( "\tPost: " );
       $ret &= eval( $upkey{'postun'} );
-      msg( "\tdone\n" );
+      pr( "\tdone\n" );
     }
     
     if( $ret )
     {
-      msg( "\tDone!\n" );
+      pr( "\tDone!\n" );
     }
     else
     {
-      croak( "\tFailed!\n" );
+      pr( "\tFailed!\n" );
       return $ret;
     }
   }
@@ -169,23 +170,23 @@ sub unInstall
     my $upfile = updateFile( %upkey );
     my $ret = 1;
     
-    $un =~ s/\$1/$upfile/;
+    $un =~ s/\$1/"$upfile"/;
     
     #FIXME: Make a function for this
     if( defined $upkey{'preun'} )
     {
-      msg( "\tPre: " );
+      pr( "\tPre: " );
       $ret &= eval( $upkey{'preun'} );
-      msg( "done\n" );
+      pr( "done\n" );
     }
     
     $ret &= system( $un );
     
     if( defined $upkey{'postun'} )
     {
-      msg( "\tPost: " );
+      pr( "\tPost: " );
       $ret &= eval( $upkey{'postun'} );
-      msg( "\tdone\n" );
+      pr( "\tdone\n" );
     }    
   }
   elsif( $upkey{'uninstall'} =~ m/;$/ )
@@ -207,5 +208,60 @@ sub unInstall
 
 sub install
 {
+  my %args = @_;
   
+  if( not defined $args{'UpdateKey'} )
+  {
+    carp( "Missing argument 'UpdateKey', got: @_" );
+    return;
+  }
+  
+  my %upkey = %{$args{'UpdateKey'}};
+ 
+  pr( "Installing ".$upkey{'name'}.": ".(defined $upkey{'preun'} ? "\n" : "" ) );
+  $|++;
+  # At this point we assume I didn't screw anything up
+  # FIXME: I will
+  if( not defined $upkey{'install'} )
+  {
+    carp( "Called install with no install defined: @_" );
+  }
+  
+  if( $upkey{'install'} =~ m/\$1/ )
+  {
+    my $in = $upkey{'install'};
+    my $upfile = updateFile( %upkey );
+    my $ret = 1;
+    
+    $in =~ s/\$1/"$upfile"/;
+    $in =~ s/\\\%/\%/;
+    
+    #FIXME: Make a function for this
+    if( defined $upkey{'preun'} )
+    {
+      pr( "\tPre: " );
+      $ret &= eval( $upkey{'preun'} );
+      pr( "done\n" );
+    }
+    
+    pr( "\tMain: " ) if defined $upkey{'preun'};
+    $ret &= system( $in );
+    pr( "done\n" );
+    
+    if( defined $upkey{'postun'} )
+    {
+      pr( "\tPost: " );
+      $ret &= eval( $upkey{'postun'} );
+      pr( "\tdone\n" );
+    }    
+  }
+  elsif( $upkey{'install'} =~ m/;$/ )
+  {
+    #No pres or posts since this is a function itself
+    eval( $upkey{'install'} );
+  }
+  
+  pr( "\n\n" );
+  
+  return 1;
 }

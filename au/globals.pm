@@ -15,7 +15,7 @@ use vars qw($VERSION @ISA @EXPORT @EXPORT_OK %EXPORT_TAGS %updates);
 
 $VERSION     = 0.1;
 @ISA         = qw(Exporter);
-@EXPORT      = qw(%updates updateFile wd human cVer header pr);
+@EXPORT      = qw(%updates updateFile wd human cVer header pr carp croak);
 
 ##########
 # wd( void )
@@ -51,6 +51,11 @@ sub readUpdates
     next if 'av' ~~ $update{'flags'};
     
     my $file = updateFile(%update);
+    if( not defined $file )
+    {
+      delete $updates{$upkey};
+      next;
+    }
     $updates{$upkey}{'file'} = $file;
     
     basename($file) =~ /$update{'regex'}/;

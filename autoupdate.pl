@@ -79,7 +79,7 @@ sub main
     {
       pr("  Action: ", 2);
       pr("Installing (required)");
-      push @install, $upref;
+      push @install, $updates{$upref};
     }
     elsif( @inst > 1 )
     {
@@ -175,9 +175,11 @@ sub processUpdates
     foreach my $install (@inst)
     {
       next if $dryrun;
-      unInstall( 'UpdateKey' => %up,
-                    'UninstallKey' => %$install ); 
+      unInstall( 'UpdateKey' => \%up,
+                 'UninstallKey' => \%{$install} ); 
     }
+    
+    install( 'UpdateKey' => \%up );
   }
 }
 
@@ -185,6 +187,16 @@ sub processInstalls
 {
   header( "Processing Installs" );
   pr("\n");
+  
+  my @packed = @_;
+  #unpack
+  
+  foreach my $upref (@packed)
+  {
+    my %up = %$upref;
+    
+    install( 'UpdateKey' => \%up );
+  }
 }
 
 header( "Multiprogram Autoupdate", "by Billy Rhoades" );
