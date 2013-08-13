@@ -15,7 +15,7 @@ use vars qw($VERSION @ISA @EXPORT @EXPORT_OK %EXPORT_TAGS %updates);
 
 $VERSION     = 0.1;
 @ISA         = qw(Exporter);
-@EXPORT      = qw(%updates updateFile wd human cVer header pr carp croak);
+@EXPORT      = qw(%updates updateFile wd human cVer header pr carp croak cnf);
 
 ##########
 # wd( void )
@@ -24,7 +24,7 @@ $VERSION     = 0.1;
 ##########
 sub wd
 {
-  $0 =~ /([\w\\\:\-\.]+\\)[\w\.\-]+\.[\w]+/;
+  $0 =~ /([\w\\\:\-\.\$]+\\)[\w\.\-]+\.[\w]+/;
 
   return $1;
 }
@@ -83,8 +83,8 @@ sub updateFile
   
   foreach my $file (@files)
   {
-    $file =~ /[A-Z]\:[\w_\s\-\\]*\\([\w_\-\s\.]+.\w+)/i;
-    my $fname = $1;
+    $file =~ /([\w\\\:\-\.\$]+\\)([\w\.\-]+\.[\w]+)$/;
+    my $fname = $2;
     
     if( $fname =~ m/$update{'regex'}/i )
     {
@@ -157,6 +157,32 @@ sub cInfo
 {
   
   
+}
+
+##########
+# cnf( $fork )
+#   Copies n' Forks--- copies the program and files off the thumb drive and forks
+#     to a new process. If this is a fork then we just go with what we have
+#     as a safeguard.
+# Returns: 1 if in C (to continue the script) 0 if on the thumb drive (dies)
+##########
+sub cnf
+{
+  my $fork = $_[0];
+  my $wd = wd( );
+  my $ndir = $ENV{'TEMP'}."\\au";
+  
+  return 1 if( $wd =~ m/C\:/i || $fork );
+ 
+  pr( "Copying and forking: " );
+    
+  system("XCOPY /s /y /i \"$wd*\" \"$ndir\"");
+  $0 =~ /[\:\$\w\s\-\\\/]*\\([\w_\-\s\.]+\.\w+)$/;
+  exec("\"$ndir\\$1\" -fork");
+  
+  pr( "done\n" );
+  
+  return 0;
 }
 
 ##########

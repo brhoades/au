@@ -10,19 +10,23 @@ use Getopt::Long;
 
 BEGIN
 {
-  $0 =~ /([\w\\\:\-\.]+\\)[\w\.\-]+\.[\w]+/;
+  $0 =~ /([\w\\\:\-\.\$]+\\)[\w\.\-]+\.[\w]+/;
   
   push @INC, $1;
 }
 use au::globals;
 use au::install;
 
-my $dryrun;
-GetOptions("dryrun" => \$dryrun);
+my ($dryrun, $fork);
+GetOptions("dryrun" => \$dryrun,
+           "fork" => \$fork);
 
 sub main
 {
   my (@update, @install);
+  
+  die unless cnf( $fork );
+  
   foreach my $upref (keys %updates)
   {
     my %up = %{$updates{$upref}};
