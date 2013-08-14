@@ -30,7 +30,7 @@ jre86:
   regex: ^jre-([0-9]u[0-9]{1,3})-windows-i586\.exe$
   postinst: jre
   install: $1 /s /L %TEMP%\jre-x86.txt /v"ADDLOCAL=ALL IEXPLORER=1 MOZILLA=1 REBOOT=reallysuppress" /qn
-  #uninstall: 
+  uninstall: $2 /qn 
   #update:
 jre64:
   flags:
@@ -41,7 +41,7 @@ jre64:
   regex: ^jre-([0-9]u[0-9]{1,3})-windows-x64\.exe$
   postinst: jre64
   install: $1 /s /L %TEMP%\jre-x64.txt /v"ADDLOCAL=ALL IEXPLORER=1 MOZILLA=1 REBOOT=reallysuppress" /qn
-  #uninstall: 
+  uninstall: $2 /qn
   #update:
 firefox:
   flags:

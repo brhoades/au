@@ -171,7 +171,14 @@ sub unInstall
       pr( "done\n" );
     }
     
-    $ret &= system( $un );
+    if( $un =~ m/msiexec/ )
+    {
+      $ret &= ( system( $un ) <= 0 );
+    }
+    else
+    {
+      $ret &= system( $un );
+    }
     
     if( defined $upkey{'postun'} )
     {
