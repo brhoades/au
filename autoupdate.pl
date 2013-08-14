@@ -23,9 +23,10 @@ GetOptions("dryrun" => \$dryrun,
 
 sub main
 {
-  my (@update, @install);
-  
   die unless cnf( $fork );
+
+  my (@update, @install);
+  my %updates = readUpdates( );  
   
   foreach my $upref (keys %updates)
   {

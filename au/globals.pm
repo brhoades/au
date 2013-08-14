@@ -29,8 +29,6 @@ sub wd
   return $1;
 }
 
-%updates = readUpdates( );
-
 ##########
 # readUpdates( void )
 #   Reads updates in from our exe folder and categorizes them via regex
@@ -179,8 +177,6 @@ sub cnf
   system("XCOPY /s /y /i \"$wd*\" \"$ndir\"");
   $0 =~ /[\:\$\w\s\-\\\/]*\\([\w_\-\s\.]+\.\w+)$/;
   exec("\"$ndir\\$1\" -fork");
- 
-  return 0;
 }
 
 ##########

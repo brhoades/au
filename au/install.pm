@@ -107,6 +107,7 @@ sub isInstalled
 sub unInstall
 {
   my %args = @_;
+  my $ret;
   
   if( not defined $args{'UpdateKey'} )
   {
@@ -158,7 +159,7 @@ sub unInstall
   elsif( $upkey{'uninstall'} =~ m/\$2/ )
   {
     my $un = $upkey{'uninstall'};
-    $un =~ s/\$2/"$unkey{'UninstallString'}"/;
+    $un =~ s/\$2/$unkey{'UninstallString'}/;
     my $ret = 1;
     
     #FIXME: Make a funciton for this
