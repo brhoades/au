@@ -9,13 +9,16 @@ use version;
 
 use Exporter;
 use YAML::Tiny;
+use Win32::IPConfig;
+use Win32::DriveInfo;
+use Win32::SystemInfo;
 use File::Basename;
 use Log::Message::Simple qw[msg error debug carp croak cluck confess];
 use vars qw($VERSION @ISA @EXPORT @EXPORT_OK %EXPORT_TAGS %updates);
 
 $VERSION     = 0.1;
 @ISA         = qw(Exporter);
-@EXPORT      = qw(%updates updateFile wd human cVer header pr carp croak cnf);
+@EXPORT      = qw(%updates updateFile wd human cVer header pr cInfo carp croak cnf readUpdates);
 
 ##########
 # wd( void )
@@ -153,8 +156,52 @@ sub cVer
 ##########
 sub cInfo
 {
+  header( "Network Information" );
+  my $host = shift || "";
+  if(my $ipconfig = Win32::IPConfig->new($host))
+  {
+    pr( "Hostname: ".$ipconfig->get_hostname."\n" );
+    pr( "Domain: ".$ipconfig->get_domain."\n" );
+
+    my @searchlist = $ipconfig->get_searchlist;
+    pr( "Search List: @searchlist (".(scalar @searchlist).")\n" );
+    pr( "Node Type: ".($ipconfig->get_nodetype)."\n" );
+
+    pr( "IP Routing: ".($ipconfig->is_router() ? "Yes" : "No")."\n" );
+    pr( "WINS proxy enabled: ".
+        ($ipconfig->is_wins_proxy() ? "Yes" : "No")."\n" );
+    pr( "LMHOSTS enabled: ".
+        ($ipconfig->is_lmhosts_enabled() ? "Yes" : "No")."\n" );
+    pr( "DNS enabled for NetBT: ".
+        ($ipconfig->is_dns_enabled_for_netbt() ? "Yes" : "No")."\n" );
+
+    foreach my $adapter ($ipconfig->get_adapters())
+    {
+      pr( "\nAdapter '".$adapter->get_name()."':\n" );
+      pr( "Description: ".$adapter->get_description()."\n" );
+      pr( "DHCP enabled: ".
+          ($adapter->is_dhcp_enabled() ? "Yes" : "No")."\n" );
+
+      my @ipaddresses = $adapter->get_ipaddresses();
+      pr( "IP address(es): @ipaddresses (".(scalar @ipaddresses).")\n" );
+
+      my @subnet_masks = $adapter->get_subnet_masks();
+      pr( "Subnet Mask(s): @subnet_masks (".(scalar @subnet_masks).")\n" );
+
+      my @gateways = $adapter->get_gateways();
+      pr( "Gateway(s): @gateways (".(scalar @gateways).")\n" );
+
+      pr( "Domain: ".$adapter->get_domain()."\n" );
+
+      my @dns = $adapter->get_dns();
+      pr( "DNS Server(s): @dns (".(scalar @dns).")\n" );
+
+      my @wins = $adapter->get_wins();
+      pr( "WIN(s): @wins (".(scalar @wins).")\n" );
+    }
+  }
   
-  
+  pr( "\n" );
 }
 
 ##########

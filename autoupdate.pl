@@ -25,6 +25,10 @@ sub main
 {
   die unless cnf( $fork );
 
+  cInfo( );
+  
+  header("Checking for Updates");
+  
   my (@update, @install);
   my %updates = readUpdates( );  
   
@@ -167,7 +171,7 @@ sub updateAvail
 
 sub processUpdates
 {
-  return 1 if( not @_ );
+  return 1 if( @_ == 0 );
   header( "Processing Updates" );
   pr("\n");
   
@@ -187,11 +191,13 @@ sub processUpdates
     
     install( 'UpdateKey' => \%up );
   }
+  
+  pr("\n");
 }
 
 sub processInstalls
 {
-  return 1 if( not @_ );
+  return 1 if( @_ == 0 );
   
   header( "Processing Installs" );
   pr("\n");
@@ -207,10 +213,13 @@ sub processInstalls
   }
 }
 
+pr("\n") if $fork;
 header( "Multiprogram Autoupdate", "by Billy Rhoades" );
-pr("\n\n");
+pr("\n");
 sleep(3);
 
 main();
 
-pr("\nScript finished!\n");
+header("Script finished!");
+
+exit 0;

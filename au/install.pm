@@ -285,8 +285,6 @@ sub install
     #No pres or posts since this is a function itself
     eval( $upkey{'install'} );
   }
-  
-  pr( "\n\n" );
-  
+    
   return 1;
 }
