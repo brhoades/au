@@ -1,7 +1,7 @@
 #Uninstall module
 #
 
-package au::globals;
+package au::special;
 
 use strict;
 use warnings;
@@ -12,7 +12,7 @@ use vars qw($VERSION @ISA @EXPORT @EXPORT_OK %EXPORT_TAGS %updates);
 
 $VERSION     = 0.1;
 @ISA         = qw(Exporter);
-@EXPORT      = qw(%updates);
+@EXPORT      = qw(firefox jre prechrome postavast postflash);
 
 
 sub firefox

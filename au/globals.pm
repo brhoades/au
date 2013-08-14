@@ -18,7 +18,7 @@ use vars qw($VERSION @ISA @EXPORT @EXPORT_OK %EXPORT_TAGS %updates);
 
 $VERSION     = 0.1;
 @ISA         = qw(Exporter);
-@EXPORT      = qw(%updates updateFile wd human cVer header pr cInfo carp croak cnf readUpdates);
+@EXPORT      = qw(updateFile wd human cVer header pr cInfo carp croak cnf readUpdates);
 
 ##########
 # wd( void )

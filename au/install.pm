@@ -4,6 +4,7 @@
 package au::install;
 
 use strict;
+no strict 'refs';
 use warnings;
 
 use Exporter;
@@ -123,7 +124,7 @@ sub unInstall
   my %upkey = %{$args{'UpdateKey'}};
   my %unkey = %{$args{'UninstallKey'}};
   
-  pr( "Uninstalling ".$unkey{'DisplayName'}.":\n" );
+  pr( "Uninstalling ".$unkey{'DisplayName'}.": ".( ( defined $upkey{'pre'} || defined $upkey{'post'} ) ? "\n" : "" ) );
   
   # At this point we assume I didn't screw anything up
   # FIXME: I will
@@ -214,10 +215,19 @@ sub unInstall
       pr( "\tdone\n" );
     }    
   }
-  elsif( $upkey{'uninstall'} =~ m/;$/ )
+  else
   {
+    my $com = $upkey{'uninstall'};
+    
     #No pres or posts since this is a function itself
-    eval( $upkey{'uninstall'} );
+    if( &$com(\%unkey, \%upkey) )
+    {
+      pr( "done\n" );
+    }
+    else
+    {
+      pr( "failed\n" );
+    }
   }
   
   return 1;
@@ -280,10 +290,18 @@ sub install
       pr( "\tdone\n" );
     }    
   }
-  elsif( $upkey{'install'} =~ m/;$/ )
+  else
   {
     #No pres or posts since this is a function itself
-    eval( $upkey{'install'} );
+    my $com = $upkey{'install'};
+    if( &$com(\%upkey) )
+    {
+      pr( "done\n" );
+    }
+    else
+    {
+      pr( "failed\n" );
+    }
   }
     
   return 1;
