@@ -78,27 +78,28 @@ sub main
     }
     
     #Update available
-    if( updateAvail( \@inst, \%up ) )
+    pr("  Action: ",2 );
+    if( not defined $up{'file'} )
     {
-      pr("  Action: ",2 );
+      pr("Installer not found");
+    }
+    elsif( updateAvail( \@inst, \%up ) )
+    {
       pr("Updating");
       push @update, [$updates{$upref}, \@inst];
     }
     elsif( 'req' ~~ $up{'flags'} && @inst == 0 )
     {
-      pr("  Action: ", 2);
       pr("Installing (required)");
       push @install, $updates{$upref};
     }
     elsif( @inst > 1 )
     {
-      pr("  Action: ", 2);
       pr("Cleaning (multiple versions)");
       push @update, [$updates{$upref}, \@inst];
     }
     else
     {
-      pr("  Action: None, ", 2);
       pr("Installed/up to date");
     }
   

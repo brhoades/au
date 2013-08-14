@@ -52,11 +52,8 @@ sub readUpdates
     next if 'av' ~~ $update{'flags'};
     
     my $file = updateFile(%update);
-    if( not defined $file )
-    {
-      delete $updates{$upkey};
-      next;
-    }
+    next if( not defined $file );
+    
     $updates{$upkey}{'file'} = $file;
     
     basename($file) =~ /$update{'regex'}/;
@@ -95,7 +92,7 @@ sub updateFile
   
   $update{'name'} =~ s/\$\s[A-Za-z]//g;
   
-  carp( "Update not found: ".$update{'name'}."\n" );
+  #carp( "Update not found: ".$update{'name'}."\n" );
   return undef;
 }
 
@@ -233,15 +230,15 @@ sub cnf
 ##########
 sub header
 {
-  pr("#"x79);
-  pr("\n");
+  pr("#"x80);
+  
   foreach my $text (@_)
   {
-    print " "x((79-length($text))/2);
+    print " "x((80-length($text))/2);
     pr("$text\n");
   }
-  pr("#"x79);
-  pr("\n");
+  
+  pr("#"x80);
 }
 
 sub pr
