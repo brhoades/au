@@ -265,6 +265,12 @@ sub cInfo
   }
   
   pr( "\n" );
+  
+  #header( "Software Installed" );
+  #my $wd = wd();
+  #my $software = `$wd\\exe\\psexec /accepteula -s`
+  #$software = /Applications\:([.\n\r\t]*)/
+  #pr( "$software" );
 }
 
 ##########
@@ -296,7 +302,7 @@ sub cnf
 ##########
 sub header
 {
-  pr("#"x80);
+  print ("#"x80);
   
   foreach my $text (@_)
   {
@@ -304,12 +310,13 @@ sub header
     pr("$text\n");
   }
   
-  pr("#"x80);
+  print ("#"x80);
 }
 
 sub pr
 {
   my $verb = $_[1];
+  my $write = $_[2];
   
   if( not defined $verb )
   {
@@ -321,7 +328,7 @@ sub pr
     print $_[0];
   }
   
-  open( my $fh, ">>", wd()."\\log.txt" );
+  open( my $fh, ">>", wd()."\\".Win32::NodeName().".txt" );
   
   print $fh $_[0];
   
