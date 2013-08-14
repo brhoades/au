@@ -215,7 +215,7 @@ sub processInstalls
 }
 
 pr("\n") if $fork;
-header( "Multiprogram Autoupdate", "by Billy Rhoades" );
+header( "Maintenance Script", "by Billy Rhoades" );
 pr("\n");
 sleep(3);
 

@@ -130,7 +130,7 @@ sub unInstall
   # FIXME: I will
   if( not defined $upkey{'uninstall'} )
   {
-    #FIXME: Make a funciton for this
+    #FIXME: Make a function for this
     if( defined $upkey{'preun'} )
     {
       pr( "\tPre: " );
@@ -171,7 +171,7 @@ sub unInstall
       pr( "done\n" );
     }
     
-    if( $un =~ m/msiexec/ )
+    if( $un =~ m/msiexec/i )
     {
       $ret &= ( system( $un ) <= 0 );
     }

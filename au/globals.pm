@@ -149,10 +149,76 @@ sub cVer
 ##########
 # cInfo( )
 #   Prints out information about this computer.
+#   Partially from: http://perlgems.blogspot.com/2012/06/retrieve-windows-system-information.html
 # Returns: Nothing
 ##########
 sub cInfo
 {
+  header( "Computer Information" );
+  
+  pr( "Name: ".Win32::NodeName()."\n" );
+  pr( "Domain: ".Win32::DomainName()."\n" );
+  pr( "OS: ".Win32::GetOSDisplayName()."\n" );
+  pr( "FS: ".Win32::FsType()."\n" );
+
+  my %processor;
+  Win32::SystemInfo::ProcessorInfo(%processor);
+
+  pr( $processor{"Processor0"}{ProcessorName}."\n" );
+  pr( "  Family: " . $processor{"Processor0"}{Identifier}."\n" );
+
+  for( my $i=0; $i<$processor{NumProcessors}; $i++)
+  {
+    pr( "  Core$i: " . $processor{"Processor$i"}{MHZ} . "MHz\n" );
+  }
+
+  my %memory;
+  Win32::SystemInfo::MemoryStatus(%memory, 'GB');
+  pr( "RAM: ".sprintf( "%.2f", $memory{TotalPhys})." GB\n" );
+
+  my %dtypes=(0 => "Undertmined",
+  1 => "Does Not Exist",
+  2 => "Removable",
+  3 => "Hardrive",
+  4 => "Network",
+  5 => "CDROM",
+  6 => "RAM Disk");
+
+  my @drives = Win32::DriveInfo::DrivesInUse();
+  pr( "Drives: \n" );
+  foreach my $drive (@drives)
+  {
+    my $type = Win32::DriveInfo::DriveType($drive);
+    if( $type > 1 && $type < 5 )
+    {
+      my @ds = Win32::DriveInfo::DriveSpace($drive);
+      next unless defined $ds[5] && defined $ds[6];
+      my $space = $ds[5];
+      my $free = $ds[6];
+      my $used = $space-$free;
+      my $usedp = sprintf( "%.2f", ( $used/$space * 100) );
+      my $extra = "\n";
+      
+      $free = sprintf( "%.2f", $free );
+      $used = sprintf( "%.2f", $used/(1024**3) );
+      $space = sprintf( "%.2f", $space/(1024**3) );
+      
+      if( $type == 4 )
+      {
+        $extra = `net use $drive:`;
+        $extra =~ /(\\\\[\w\.\\]+\s)/;
+        $extra = "\n    ".$1;
+      }
+      
+      pr( "  $drive: $dtypes{$type}, $used/$space GiB ($usedp\%)$extra" );
+      
+    }
+    else
+    {
+      pr( "  $drive: $dtypes{$type}\n" );
+    }
+  }
+
   header( "Network Information" );
   my $host = shift || "";
   if(my $ipconfig = Win32::IPConfig->new($host))
